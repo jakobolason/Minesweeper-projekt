@@ -1,3 +1,4 @@
+import random
 bomb_field = {1: [0, 0, 0, 0, 0, 0, 0, 0, 0], 2: [0, 0, 0, 0, 0, 0, 0, 0, 0], 3: [0, 0, 0, 0, 0, 0, 0, 0, 0], \
                4: [0, 0, 0, 0, 0, 0, 0, 0, 0], 5: [0, 0, 0, 0, 0, 0, 0, 0, 0], 6: [0, 0, 0, 0, 0, 0, 0, 0, 0], \
                  7: [0, 0, 0, 0, 0, 0, 0, 0, 0], 8: [0, 0, 0, 0, 0, 0, 0, 0, 0], 9: [0, 0, 0, 0, 0, 0, 0, 0, 0]}
@@ -6,13 +7,20 @@ visual_field = {1: [0, 0, 0, 0, 0, 0, 0, 0, 0], 2: [0, 0, 0, 0, 0, 0, 0, 0, 0], 
               4: [0, 0, 0, 0, 0, 0, 0, 0, 0], 5: [0, 0, 0, 0, 0, 0, 0, 0, 0], 6: [0, 0, 0, 0, 0, 0, 0, 0, 0], \
                 7: [0, 0, 0, 0, 0, 0, 0, 0, 0], 8: [0, 0, 0, 0, 0, 0, 0, 0, 0], 9: [0, 0, 0, 0, 0, 0, 0, 0, 0]}
 
+def shuffle_bombs_in(amount):
+    for bombs in range(amount):
+        random_key = random.randint(1, 9)
+        random_cell = random.randint(0,8)
+        print(random_key, random_cell)
+        bomb_field[random_key][random_cell-1] = 1
+
 def click_cell(row, column, player=True):
     cell = bomb_field[row][column]
     if player:
         if cell == 1:
             print("You clicked on a bomb, you busted!")
         else:
-            print("You're okay")
+            print("You're okay!")
     visual_field[row][column] = 1
 
 
@@ -21,21 +29,13 @@ def bombs_nearby(row, column):
     #       row: column -1, column +1
     #       row +1: column -1, column, column +1    
     adjacent_cells = []
-    try:
-        adjacent_cells.extend(bomb_field[row-1][column-1:column+2])
-    except KeyError:
-        pass
-    try:
-        adjacent_cells.extend(bomb_field[row][column-1:column+2])
-    except KeyError:
-        pass
-    try:
-        adjacent_cells.extend(bomb_field[row+1][column-1:column+2])
-    except KeyError:
-        pass
+    for new_row in range(max(1, row-1), min(row+2, len(bomb_field)+1)):
+        for new_column in range(max(1, column-1), min(column+2, len(bomb_field)+1)):
+                adjacent_cells.append((new_row, new_column))
+
     bombs_nearby = 0
-    for cell in adjacent_cells:
-        if cell == 1:
+    for row, column in adjacent_cells:
+        if bomb_field[row][column]== 1:
             bombs_nearby += 1
     return bombs_nearby
 
@@ -49,8 +49,8 @@ def flood_fill(row, column):
                 adjacent_cells.append((new_row, new_column))
     
     for new_row, new_column in adjacent_cells:
-        visual_field[new_row][new_column] = 1
         print(new_row, new_column)
+        visual_field[new_row][new_column] = 1
 
 
 # show visual field
@@ -75,22 +75,22 @@ class Playing():
             show_field()
             print("*"*40)
             user_row = int(input("which row would you like to click? "))
-            while user_row > 8 and user_row < 0:
+            while user_row > 8 and user_row < 0 or not ValueError:
                 user_row = int(input("You can pick a number between 0 and 8 "))
             user_column = int(input("which column? "))
             while user_column > 8 and user_column < 0:
                 user_column = int(input("You can pick a number between 0 and 8 "))
+
             click_cell(user_row, user_column)
             flood_fill(user_row, user_column)
 
             cell = bomb_field[user_row][user_column]
             if cell == 1:
-                print("You clicked on a bomb, you busted!")
                 return busted
             else:
                 continue
                 
-
+shuffle_bombs_in(10)
 game_one = Playing()
 game_one.play()
 
