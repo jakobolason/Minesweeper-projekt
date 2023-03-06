@@ -40,6 +40,16 @@ class Cell:
     def become_bomb(self):
         self.is_bomb = True
 
+def check_for_bombs(row, column):
+    #checks row - 1: column -1, column, column +1
+    #       row: column -1, column +1
+    #       row +1: column -1, column, column +1
+    for key, value in game_field.row_column.items():
+        if key == row:
+            for cell in value:
+                Cell(Cell_id(key, cell))
+
+check_for_bombs(3, 3)
 cell_one = Cell(Cell_id(1,1))
 print(cell_one)
 cell_one.clicked()
