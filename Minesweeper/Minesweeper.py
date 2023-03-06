@@ -1,61 +1,35 @@
-def game_field():
-    row_column = {1: [1, 2, 3, 4, 5, 6, 7, 8, 9], 2: [1, 2, 3, 4, 5, 6, 7, 8, 9], 3: [1, 2, 3, 4, 5, 6, 7, 8, 9], 4: [1, 2, 3, 4, 5, 6, 7, 8, 9], \
-                  5: [1, 2, 3, 4, 5, 6, 7, 8, 9], 6: [1, 2, 3, 4, 5, 6, 7, 8, 9], 7: [1, 2, 3, 4, 5, 6, 7, 8, 9], 8: [1, 2, 3, 4, 5, 6, 7, 8, 9], \
-                  9: [1, 2, 3, 4, 5, 6, 7, 8, 9]}
 
-    for key in row_column.keys():
-        while True:
-            for number in row_column[key]:
-
-                print("(X)".format(key=key, number=number), end=" ")
-            
-            print("\n")
-            break
-
-# You should be able to call cell_id on a row_column[key][column] and get the id
-class Cell_id:
-    def __init__(self, row, column):
-        self.row = row
-        self.column = column
-    def __str__(self):
-        return "{row}{column}".format(row=self.row, column=self.column)
-
-# givet information on the cell, has it been pressed? Is it a bomb?
-class Cell:
-    def __init__(self, id, been_pressed=False, is_bomb=False):
-        self.id = id
-        self.been_pressed = been_pressed
-        self.is_bomb = is_bomb
-    
-    def __repr__(self):
-        return '''Cell {cellid}, it has{pressed} been pressed, and it is{bomb} a bomb'''.format(cellid=self.id, \
-                                                                                        pressed="" if self.been_pressed else " not", bomb="" if self.is_bomb else " not" )
-    
-    def clicked(self):
-        self.been_pressed = True
-        if self.is_bomb:
-            print("You clicked on a bomb, you busted!")
-        # should check the adjacent cells 
-    
-    def become_bomb(self):
-        self.is_bomb = True
+game_field = {1: [1, 0, 0, 0, 0, 0, 0, 0, 0], 2: [0, 1, 0, 0, 0, 0, 0, 0, 0], 3: [0, 0, 0, 0, 0, 0, 0, 0, 0], \
+              4: [0, 0, 0, 0, 0, 0, 0, 0, 0], 5: [0, 0, 0, 0, 0, 0, 0, 0, 0], 6: [0, 0, 0, 0, 0, 0, 0, 0, 0], \
+                7: [0, 0, 0, 0, 0, 0, 0, 0, 0], 8: [0, 0, 0, 0, 0, 0, 0, 0, 0], 9: [0, 0, 0, 0, 0, 0, 0, 0, 0]}
+# for key in game_field.keys():
+#     while True:
+#         for number in game_field[key]:
+#             print("(X)".format(key=key, number=number), end=" ")
+#         print("\n")
+#         break
 
 def check_for_bombs(row, column):
+    cell = game_field[row][column]
+    print(cell)
+    if cell == 1:
+        print("You clicked on a bomb, you busted!")
+    else:
+        print("You're okay")
+
     #checks row - 1: column -1, column, column +1
     #       row: column -1, column +1
-    #       row +1: column -1, column, column +1
-    for key, value in game_field.row_column.items():
-        if key == row:
-            for cell in value:
-                Cell(Cell_id(key, cell))
+    #       row +1: column -1, column, column +1    
+    adjacent_cells = game_field[row-1][column-1:column+2]
+    adjacent_cells.extend(game_field[row][column-1:column+2])
+    adjacent_cells.extend(game_field[row+1][column-1:column+2])
+    bombs_nearby = 0
+    for cell in adjacent_cells:
+        if cell == 1:
+            bombs_nearby += 1
+    return bombs_nearby
 
-check_for_bombs(3, 3)
-cell_one = Cell(Cell_id(1,1))
-print(cell_one)
-cell_one.clicked()
-print(cell_one)
-cell_one.become_bomb()
-print(cell_one)
+check_for_bombs(3, 2)
 
 
 
