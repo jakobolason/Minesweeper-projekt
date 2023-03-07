@@ -1,54 +1,105 @@
-def game_field():
-    row_column = {1: [1, 2, 3, 4, 5, 6, 7, 8, 9], 2: [1, 2, 3, 4, 5, 6, 7, 8, 9], 3: [1, 2, 3, 4, 5, 6, 7, 8, 9], 4: [1, 2, 3, 4, 5, 6, 7, 8, 9], \
-                  5: [1, 2, 3, 4, 5, 6, 7, 8, 9], 6: [1, 2, 3, 4, 5, 6, 7, 8, 9], 7: [1, 2, 3, 4, 5, 6, 7, 8, 9], 8: [1, 2, 3, 4, 5, 6, 7, 8, 9], \
-                  9: [1, 2, 3, 4, 5, 6, 7, 8, 9]}
+import random
+bomb_field = {1: [0, 0, 0, 0, 0, 0, 0, 0, 0], 2: [0, 0, 0, 0, 0, 0, 0, 0, 0], 3: [0, 0, 0, 0, 0, 0, 0, 0, 0], \
+               4: [0, 0, 0, 0, 0, 0, 0, 0, 0], 5: [0, 0, 0, 0, 0, 0, 0, 0, 0], 6: [0, 0, 0, 0, 0, 0, 0, 0, 0], \
+                 7: [0, 0, 0, 0, 0, 0, 0, 0, 0], 8: [0, 0, 0, 0, 0, 0, 0, 0, 0], 9: [0, 0, 0, 0, 0, 0, 0, 0, 0]}
 
-    for key in row_column.keys():
+visual_field = {1: [0, 0, 0, 0, 0, 0, 0, 0, 0], 2: [0, 0, 0, 0, 0, 0, 0, 0, 0], 3: [0, 0, 0, 0, 0, 0, 0, 0, 0], \
+              4: [0, 0, 0, 0, 0, 0, 0, 0, 0], 5: [0, 0, 0, 0, 0, 0, 0, 0, 0], 6: [0, 0, 0, 0, 0, 0, 0, 0, 0], \
+                7: [0, 0, 0, 0, 0, 0, 0, 0, 0], 8: [0, 0, 0, 0, 0, 0, 0, 0, 0], 9: [0, 0, 0, 0, 0, 0, 0, 0, 0]}
+
+def shuffle_bombs_in(amount):
+    for bombs in range(amount):
+        random_key = random.randint(1, 9)
+        random_cell = random.randint(0,8)
+        bomb_field[random_key][random_cell-1] = 1
+
+def click_cell(row, column, player=True):
+    cell = bomb_field[row][column]
+    if player:
+        if cell == 1:
+            print("You clicked on a bomb, you busted!")
+        else:
+            print("You're okay!")
+    visual_field[row][column] = 1
+
+
+def bombs_nearby(row, column):
+    #checks row - 1: column -1, column, column +1
+    #       row: column -1, column +1
+    #       row +1: column -1, column, column +1    
+    adjacent_cells = []
+    for new_row in range(max(1, row-1), min(row+2, len(bomb_field)+1)):
+        for new_column in range(max(1, column-1), min(column+2, len(bomb_field)+1)):
+                adjacent_cells.append((new_row, new_column))
+
+    bombs_nearby = 0
+    for row, column in adjacent_cells:
+        if bomb_field[row][column]== 1:
+            bombs_nearby += 1
+    return bombs_nearby
+
+def flood_fill(row, column):
+    print(bombs_nearby(row, column))
+    if bombs_nearby(row, column) == 0:
+        adjacent_cells = []
+        for new_row in range(max(1, row-1), min(row+2, len(bomb_field)+1)):
+            for new_column in range(max(1, column-1), min(column+2, len(bomb_field)+1)):
+                if bomb_field[new_row][new_column] == 0 and visual_field[new_row][new_column] == 0:
+                    adjacent_cells.append([new_row, new_column])
+        print(adjacent_cells)
+        for new_row, new_column in adjacent_cells:
+            print(new_row, new_column)
+            visual_field[new_row][new_column] = 1
+
+# show visual field
+# column bliver printet før de andre
+# rows bliver printet som indexet af row. 
+def show_field():
+    print("\n\t\t      MINESWEEPER")
+    print("-"*57)
+    print("", end="    ")
+    for column in range(9):
+        print("{column}".format(column=column+1), end="   | ")
+    print()
+    print("_"*57)
+    for index, key in enumerate(visual_field.keys()):
+        print(index +1, end=" | ")
         while True:
-            for number in row_column[key]:
-
-                print("(X)".format(key=key, number=number), end=" ")
-            
+            for number in visual_field[key]:
+                if number == 0:
+                    print("(X)".format(key=key, number=number), end=" | ")
+                elif number == 1:
+                    print(" {bombs} ".format(bombs=bombs_nearby(key, number)), end=" | ")
+                else:
+                    continue
             print("\n")
             break
+    print("_"*57)
 
-# You should be able to call cell_id on a row_column[key][column] and get the id
-class Cell_id:
-    def __init__(self, row, column):
-        self.row = row
-        self.column = column
-    def __str__(self):
-        return "{row}{column}".format(row=self.row, column=self.column)
+class Playing():
+    def play(self):
+        busted = False
+        while not busted:
+            show_field()
+            user_row = int(input("which row would you like to click? "))
+            while user_row > 8 and user_row < 0 or not ValueError:
+                user_row = int(input("You can pick a number between 0 and 8 "))
+            user_column = int(input("which column? "))
+            while user_column > 8 and user_column < 0:
+                user_column = int(input("You can pick a number between 0 and 8 "))
+            user_row = user_row; user_column = user_column - 1
+            click_cell(user_row, user_column)
+            flood_fill(user_row, user_column)
 
-# givet information on the cell, has it been pressed? Is it a bomb?
-class Cell:
-    def __init__(self, id, been_pressed=False, is_bomb=False):
-        self.id = id
-        self.been_pressed = been_pressed
-        self.is_bomb = is_bomb
-    
-    def __repr__(self):
-        return '''Cell {cellid}, it has{pressed} been pressed, and it is{bomb} a bomb'''.format(cellid=self.id, \
-                                                                                        pressed="" if self.been_pressed else " not", bomb="" if self.is_bomb else " not" )
-    
-    def clicked(self):
-        self.been_pressed = True
-        if self.is_bomb:
-            print("You clicked on a bomb, you busted!")
-        # should check the adjacent cells 
-    
-    def become_bomb(self):
-        self.is_bomb = True
+            cell = bomb_field[user_row][user_column]
+            if cell == 1:
+                busted = False
+            else:
+                continue
+                
+shuffle_bombs_in(10)
+game_one = Playing()
+game_one.play()
 
-cell_one = Cell(Cell_id(1,1))
-print(cell_one)
-cell_one.clicked()
-print(cell_one)
-cell_one.become_bomb()
-print(cell_one)
-
-
-
-
-# rules: if the adjacent 8 cells do not include a bomb, show the adjacent cells
-# if there are adjacent cells with bombs, show the amount of bombs in the area
+# rules: if the adjacent 8 cells do not include a bomb, show the adjacent cells \
+#  if there are adjacent cells with bombs, show the amount of bombs in the area
