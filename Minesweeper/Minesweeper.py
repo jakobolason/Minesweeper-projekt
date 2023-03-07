@@ -59,11 +59,11 @@ def show_field():
     print("-"*57)
     print("", end="    ")
     for column in range(9):
-        print("{column}".format(column=column), end="   | ")
+        print("{column}".format(column=column+1), end="   | ")
     print()
     print("_"*57)
     for index, key in enumerate(visual_field.keys()):
-        print(index, end=" | ")
+        print(index +1, end=" | ")
         while True:
             for number in visual_field[key]:
                 if number == 0:
@@ -87,13 +87,13 @@ class Playing():
             user_column = int(input("which column? "))
             while user_column > 8 and user_column < 0:
                 user_column = int(input("You can pick a number between 0 and 8 "))
-
+            user_row = user_row; user_column = user_column - 1
             click_cell(user_row, user_column)
             flood_fill(user_row, user_column)
 
             cell = bomb_field[user_row][user_column]
             if cell == 1:
-                return busted
+                busted = False
             else:
                 continue
                 
